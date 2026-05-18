@@ -1,0 +1,3 @@
+asm_pledge
+pledge
+*.o

@@ -374,13 +374,6 @@ end_obs_at:
 	ret
 
 
-# RAX->X  RBX->Y   ==>   RAX->INDEX
-.type pos_to_index, @function
-pos_to_index:
-	shl $4, %rbx		# y = y * 16
-	add %rbx, %rax		# x = x + y
-	ret
-
 # RAX->ROT  ==>  RAX->X  RBX->Y  (direction)
 .type rot_to_dir, @function
 rot_to_dir:

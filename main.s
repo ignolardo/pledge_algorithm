@@ -11,6 +11,8 @@ MAZE_CHARS: .long 176
 
 ROT_TO_DIR: .quad 1, 0, 0, 1, -1, 0, 0, -1, 1, 0, 0, 1, -1, 0, 0, -1, 1, 0
 
+INDEX_ROT_OFFSET: .quad 1, 16, -1, -16
+
 format: .asciz "x: %d, y: %d\n\n"
 format_maze: .asciz "\n%s\n"
 format_maze_line: .asciz "%.16s\n"
@@ -101,23 +103,31 @@ continue_main_loop:
 	jne stick
 
 no_stick:
-	call obstacle_at_front
+	movq ANGLE, %rax
+	call obstacle_at
 	cmp $1, %rax
 	jne go_forward
-	call obstacle_at_right
+	movq ANGLE, %rax
+	add $1, %rax
+	call obstacle_at
 	cmp $1, %rax
 	jne go_right
 	
 	jmp go_back
 
 stick:
-	call obstacle_at_left
+	movq ANGLE, %rax
+	sub $1, %rax
+	call obstacle_at
 	cmp $1, %rax
 	jne go_left
-	call obstacle_at_front
+	movq ANGLE, %rax
+	call obstacle_at
 	cmp $1, %rax
 	jne go_forward
-	call obstacle_at_right
+	movq ANGLE, %rax
+	add $1, %rax
+	call obstacle_at
 	cmp $1, %rax
 	jne go_right
 
@@ -139,9 +149,9 @@ go_back:
 	call walk
 	jmp main_loop
 
-
 main_loop_end:
     ret
+
 
 .type walk, @function
 walk:
@@ -216,7 +226,7 @@ continue_teleport:
 .type rotate_right, @function
 rotate_right:
 	cmpq $3, ANGLE
-	jge set_angle_0_right
+	je set_angle_0_right
 	jmp inc_angle_right
 set_angle_0_right:
 	movq $0, ANGLE
@@ -236,11 +246,11 @@ continue_rot_right:
 
 .type rotate_left, @function
 rotate_left:
-	cmpq $-3, ANGLE
-	jle set_angle_0_left
+	cmpq $0, ANGLE
+	je set_angle_3_left
 	jmp dec_angle_left
-set_angle_0_left:
-	movq $0, ANGLE
+set_angle_3_left:
+	movq $3, ANGLE
 	jmp continue_rot_left
 dec_angle_left:
 	decq ANGLE
@@ -327,98 +337,42 @@ second_portal_set:
 continue_portal_update:
 	ret
 
-# ==>  RAX->RESULT  (bool)   CL->SYMBOL
-.type obstacle_at_front, @function
-obstacle_at_front:
-	movq ANGLE, %rax
-	call rot_to_dir
-
-	add %r9, %rax
-	add %r10, %rbx
-
-	mov %rbx, %rdx
-	shl $4, %rdx
-	add %rax, %rdx
+# RAX(angle) ==> RAX(result)[bool]
+.type obstacle_at, @function
+obstacle_at:
+check_sub_0:
+	cmp $0, %rax
+	jge check_super_3
+	mov $3, %rax
+	jmp continue_obs_at
+check_super_3:
+	cmp $3, %rax
+	jle continue_obs_at
+	mov $0, %rax
+continue_obs_at:
+	mov %r8, %rdx		# move character index to rdx
+	shl $3, %rax
+	movq INDEX_ROT_OFFSET(%rax), %rcx
+	add %rcx, %rdx
 
 	movb MAZE_BUFFER(%rdx), %cl
 
 	cmpb $77, %cl
-	je set_obs_front_true
+	je set_obs_at_true
 	cmpb $79, %cl
-	je set_obs_front_true
-	jmp set_obs_front_false
+	je set_obs_at_true
+	jmp set_obs_at_false
 
-set_obs_front_true:
+set_obs_at_true:
 	mov $1, %rax
-	jmp end_obs_front
-set_obs_front_false:
+	jmp end_obs_at
+set_obs_at_false:
 	mov $0, %rax
-	jmp end_obs_front
+	jmp end_obs_at
 
-end_obs_front:
+end_obs_at:
 	ret
 
-.type obstacle_at_right, @function
-obstacle_at_right:
-	movq ANGLE, %rax
-	add $1, %rax
-	call rot_to_dir
-
-	add %r9, %rax
-	add %r10, %rbx
-
-	mov %rbx, %rdx
-	shl $4, %rdx
-	add %rax, %rdx
-
-	movb MAZE_BUFFER(%rdx), %cl
-
-	cmpb $77, %cl
-	je set_obs_right_true
-	cmpb $79, %cl
-	je set_obs_right_true
-	jmp set_obs_right_false
-
-set_obs_right_true:
-	mov $1, %rax
-	jmp end_obs_right
-set_obs_right_false:
-	mov $0, %rax
-	jmp end_obs_right
-	
-end_obs_right:
-	ret
-
-.type obstacle_at_left, @function
-obstacle_at_left:
-	movq ANGLE, %rax
-	add $-1, %rax
-	call rot_to_dir
-
-	add %r9, %rax
-	add %r10, %rbx
-
-	mov %rbx, %rdx
-	shl $4, %rdx
-	add %rax, %rdx
-
-	movb MAZE_BUFFER(%rdx), %cl
-
-	cmpb $77, %cl
-	je set_obs_left_true
-	cmpb $79, %cl
-	je set_obs_left_true
-	jmp set_obs_left_false
-
-set_obs_left_true:
-	mov $1, %rax
-	jmp end_obs_left
-set_obs_left_false:
-	mov $0, %rax
-	jmp end_obs_left
-	
-end_obs_left:
-	ret
 
 # RAX->X  RBX->Y   ==>   RAX->INDEX
 .type pos_to_index, @function

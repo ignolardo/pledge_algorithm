@@ -374,19 +374,6 @@ end_obs_at:
 	ret
 
 
-# RAX->ROT  ==>  RAX->X  RBX->Y  (direction)
-.type rot_to_dir, @function
-rot_to_dir:
-	mov %rax, %rcx
-	add $4, %rcx				# rot2 = rot1 + 4
-	shl $4, %rcx				# rot3 = rot2 * 16 = (rot1 + 4)*16
-	mov ROT_TO_DIR(%rcx), %rax
-	add $8, %rcx
-	mov ROT_TO_DIR(%rcx), %rbx
-
-	ret
-
-
 .type print_data, @function
 print_data:
 	push %rbp

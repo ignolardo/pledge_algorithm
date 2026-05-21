@@ -84,9 +84,6 @@ main:
 
 .type solve, @function 
 solve:
-	push %rbp
-    mov %rsp, %rbp
-
 main_loop:
 	call print_maze
 	call print_data
@@ -126,7 +123,6 @@ stick:
 
 	jmp go_back
 
-
 go_forward:
 	call walk
 	jmp main_loop
@@ -145,22 +141,10 @@ go_back:
 
 
 main_loop_end:
-	mov %rbp, %rsp
-	pop %rbp
     ret
 
 .type walk, @function
 walk:
-	push %rbp
-	mov %rsp, %rbp
-
-/* 	cmpb $64, %r14b
-	jne not_walk_teleport
-walk_teleport:
-	call teleport
-	jmp end_walk */
-
-#not_walk_teleport:
 	cmpb $35, %r14b
 	je set_end_symbol
 	cmpb $79, %r14b
@@ -176,7 +160,6 @@ set_used_portal_symbol:
 	movb $79, MAZE_BUFFER(%r8)		# Set O as used portal symbol
 
 continue_walk:
-
 	addq DIR_X, %r9		# x (pos) += x (dir)
 	addq DIR_Y, %r10		# y (pos) += y (dir)
 
@@ -205,16 +188,10 @@ walk_teleport:
 	call teleport
 
 end_walk:
-
-	mov %rbp, %rsp
-	pop %rbp
     ret
 
 .type teleport, @function
 teleport:
-	push %rbp
-	mov %rsp, %rbp
-
 	movb $79, MAZE_BUFFER(%r8)		# Set entry portal symbol as used 'O'
 
 	cmpb PORTAL_1_INDEX, %r8b
@@ -234,15 +211,10 @@ continue_teleport:
 	mov %r8, %r9
 	and $15, %r9		# %r9 = %rsi mod 16
 
-	mov %rbp, %rsp
-	pop %rbp
     ret
 
 .type rotate_right, @function
 rotate_right:
-	push %rbp
-	mov %rsp, %rbp
-
 	cmpq $3, ANGLE
 	jge set_angle_0_right
 	jmp inc_angle_right
@@ -260,15 +232,10 @@ continue_rot_right:
 	movq %rbx, DIR_Y		# y (dir) = x (dir)
 	movq %rax, DIR_X			# x (dir) = -y (dir)
 
-	mov %rbp, %rsp
-	pop %rbp
     ret
 
 .type rotate_left, @function
 rotate_left:
-	push %rbp
-	mov %rsp, %rbp
-
 	cmpq $-3, ANGLE
 	jle set_angle_0_left
 	jmp dec_angle_left
@@ -286,29 +253,18 @@ continue_rot_left:
 	movq %rbx, DIR_X			# x (dir) = y (dir)
 	movq %rax, DIR_Y			# y (dir) = -x (dir)
 
-	mov %rbp, %rsp
-	pop %rbp
     ret
 
 
 .type rotate_back, @function
 rotate_back:
-	push %rbp
-	mov %rsp, %rbp
-
 	call rotate_right
 	call rotate_right
-
-	mov %rbp, %rsp
-	pop %rbp
     ret
 
 
 .type find_all, @function
 find_all:
-	push %rbp
-	mov %rsp, %rbp
-
 	mov $0, %rbx		# iterate over maze string
 
 find_all_loop:
@@ -341,41 +297,24 @@ continue_find_loop:
 	jmp find_all_loop
 
 find_all_loop_end:
-	mov %rbp, %rsp
-	pop %rbp
 	ret
 
 .type character_pos_update, @function
 character_pos_update:
-	push %rbp
-	mov %rsp, %rbp
-
 	mov %rbx, %r8		# %r8 = %rsi
 	mov %rbx, %r10
 	shr $4, %r10		# %r10 = %rsi / 16
 	mov %rbx, %r9
 	and $15, %r9		# %r9 = %rsi mod 16
-
-	mov %rbp, %rsp
-	pop %rbp
 	ret
 
 .type exit_update, @function
 exit_update:
-	push %rbp
-	mov %rsp, %rbp
-
 	movb %bl, EXIT_INDEX
-
-	mov %rbp, %rsp
-	pop %rbp
 	ret
 
 .type portal_update, @function
 portal_update:
-	push %rbp
-	mov %rsp, %rbp
-
 	cmp $0, %r12				# if first portal already found
 	jne second_portal_set		# then set second portal
 first_portal_set:				# if first portal not found, set first portal
@@ -386,16 +325,11 @@ second_portal_set:
 	movb %bl, PORTAL_2_INDEX
 	jmp continue_portal_update
 continue_portal_update:
-	mov %rbp, %rsp
-	pop %rbp
 	ret
 
 # ==>  RAX->RESULT  (bool)   CL->SYMBOL
 .type obstacle_at_front, @function
 obstacle_at_front:
-	push %rbp
-	mov %rsp, %rbp
-
 	movq ANGLE, %rax
 	call rot_to_dir
 
@@ -422,15 +356,10 @@ set_obs_front_false:
 	jmp end_obs_front
 
 end_obs_front:
-	mov %rbp, %rsp
-	pop %rbp
 	ret
 
 .type obstacle_at_right, @function
 obstacle_at_right:
-	push %rbp
-	mov %rsp, %rbp
-
 	movq ANGLE, %rax
 	add $1, %rax
 	call rot_to_dir
@@ -458,15 +387,10 @@ set_obs_right_false:
 	jmp end_obs_right
 	
 end_obs_right:
-	mov %rbp, %rsp
-	pop %rbp
 	ret
 
 .type obstacle_at_left, @function
 obstacle_at_left:
-	push %rbp
-	mov %rsp, %rbp
-
 	movq ANGLE, %rax
 	add $-1, %rax
 	call rot_to_dir
@@ -494,30 +418,18 @@ set_obs_left_false:
 	jmp end_obs_left
 	
 end_obs_left:
-	mov %rbp, %rsp
-	pop %rbp
 	ret
 
 # RAX->X  RBX->Y   ==>   RAX->INDEX
 .type pos_to_index, @function
 pos_to_index:
-	push %rbp
-	mov %rsp, %rbp
-
 	shl $4, %rbx		# y = y * 16
 	add %rbx, %rax		# x = x + y
-
-
-	mov %rbp, %rsp
-	pop %rbp
 	ret
 
 # RAX->ROT  ==>  RAX->X  RBX->Y  (direction)
 .type rot_to_dir, @function
 rot_to_dir:
-	push %rbp
-	mov %rsp, %rbp
-
 	mov %rax, %rcx
 	add $4, %rcx				# rot2 = rot1 + 4
 	shl $4, %rcx				# rot3 = rot2 * 16 = (rot1 + 4)*16
@@ -525,8 +437,6 @@ rot_to_dir:
 	add $8, %rcx
 	mov ROT_TO_DIR(%rcx), %rbx
 
-	mov %rbp, %rsp
-	pop %rbp
 	ret
 
 

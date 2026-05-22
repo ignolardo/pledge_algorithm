@@ -9,7 +9,7 @@ all: main.c.o
 gdb: all
 	gdb pledge
 
-asm: main.s.o
+asm: main.s.o print_maze.s.o
 	gcc $< -no-pie -o asm_pledge
 
 %.s.o: %.s

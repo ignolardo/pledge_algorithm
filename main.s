@@ -140,15 +140,18 @@ go_forward:
 	call walk
 	jmp main_loop
 go_right:
-	call rotate_right
+	mov $1, %rax
+	call rotate_to
 	call walk
 	jmp main_loop
 go_left:
-	call rotate_left
+	mov $-1, %rax
+	call rotate_to
 	call walk
 	jmp main_loop
 go_back:
-	call rotate_back
+	mov $2, %rax
+	call rotate_to
 	call walk
 	jmp main_loop
 
@@ -226,53 +229,26 @@ continue_teleport:
 
     ret
 
-.type rotate_right, @function
-rotate_right:
-	cmpq $3, ANGLE
-	je set_angle_0_right
-	jmp inc_angle_right
-set_angle_0_right:
-	movq $0, ANGLE
-	jmp continue_rot_right
-inc_angle_right:
-	incq ANGLE
-continue_rot_right:
-	incq ROTATIONS
+# RAX(side)[1=right -1=left]
+.type rotate_to, @function
+rotate_to:
+	movq ANGLE, %rdx
+	movq ROTATIONS, %rbx
+	add %rax, %rdx
+	add %rax, %rbx
 
-	movq DIR_Y, %rax		
-	movq DIR_X, %rbx
-	neg %rax				# rax = -y (dir)
-	movq %rbx, DIR_Y		# y (dir) = x (dir)
-	movq %rax, DIR_X			# x (dir) = -y (dir)
+	and $3, %rdx		# modulo
 
-    ret
+	movq %rdx, ANGLE
+	movq %rbx, ROTATIONS
 
-.type rotate_left, @function
-rotate_left:
-	cmpq $0, ANGLE
-	je set_angle_3_left
-	jmp dec_angle_left
-set_angle_3_left:
-	movq $3, ANGLE
-	jmp continue_rot_left
-dec_angle_left:
-	decq ANGLE
-continue_rot_left:
-	decq ROTATIONS
+	shl $4, %rdx
+	movq ROT_TO_DIR(%rdx), %rax
+	add $8, %rdx
+	movq ROT_TO_DIR(%rdx), %rbx
+	mov %rax, DIR_X
+	mov %rbx, DIR_Y
 
-	movq DIR_X, %rax
-	movq DIR_Y, %rbx		
-	neg %rax					# rax = -x (dir)
-	movq %rbx, DIR_X			# x (dir) = y (dir)
-	movq %rax, DIR_Y			# y (dir) = -x (dir)
-
-    ret
-
-
-.type rotate_back, @function
-rotate_back:
-	call rotate_right
-	call rotate_right
     ret
 
 
@@ -343,16 +319,8 @@ continue_portal_update:
 # RAX(angle) ==> RAX(result)[bool]
 .type obstacle_at, @function
 obstacle_at:
-check_sub_0:
-	cmp $0, %rax
-	jge check_super_3
-	mov $3, %rax
-	jmp continue_obs_at
-check_super_3:
-	cmp $3, %rax
-	jle continue_obs_at
-	mov $0, %rax
-continue_obs_at:
+	and $3, %rax		# modulo
+
 	mov %r8, %rdx		# move character index to rdx
 	shl $3, %rax
 	movq INDEX_ROT_OFFSET(%rax), %rcx

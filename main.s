@@ -29,10 +29,6 @@ format_maze: .asciz "\n%s\n"
 format_maze_line: .asciz "%.16s\n"
 
 .equ MAZE_BUFFER_SIZE, 304
-/* .lcomm MAZE_BUFFER, MAZE_BUFFER_SIZE
-.lcomm MAZE_HEIGHT, 5
-.lcomm MAZE_CHARS, 9
- */
 
 .section .text
 
@@ -43,7 +39,7 @@ format_maze_line: .asciz "%.16s\n"
 
 DIR_X -> character x direction
 DIR_Y -> character y direction
-ANGLE -> chracter angle
+ANGLE -> character angle
 ROTATIONS -> character rotations
 
 %r11 -> bonus count
@@ -70,7 +66,6 @@ main:
 	mov $0, %r11
 	mov $0, %r12
 	call find_all		# Update character stats
-	call print_data
 	movb $32, %r14b
 	mov $0, %r15
 

@@ -1,4 +1,4 @@
-.include "print_maze.s"
+#.include "print_maze.s"
 
 
 .section .data
@@ -78,8 +78,8 @@ main:
 .type solve, @function 
 solve:
 main_loop:
-	call print_maze
-	call print_data
+	#call print_maze
+	#call print_data
 
 	cmpb EXIT_INDEX, %r8b
 	jne continue_main_loop

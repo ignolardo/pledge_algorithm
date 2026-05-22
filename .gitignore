@@ -1,3 +1,4 @@
 asm_pledge
 pledge
 *.o
+.gdb_history

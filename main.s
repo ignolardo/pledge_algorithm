@@ -12,7 +12,7 @@ MAZE_BUFFER:
 MAZE_HEIGHT: .long 11
 MAZE_CHARS: .long 176
 
-ROT_TO_DIR: .quad 1, 0, 0, 1, -1, 0, 0, -1, 1, 0, 0, 1, -1, 0, 0, -1, 1, 0
+ROT_TO_DIR: .quad 1, 0, 0, 1, -1, 0, 0, -1
 
 INDEX_ROT_OFFSET: .quad 1, 16, -1, -16
 

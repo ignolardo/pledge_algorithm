@@ -16,25 +16,23 @@ ROT_TO_DIR: .quad 1, 0, 0, 1, -1, 0, 0, -1
 
 INDEX_ROT_OFFSET: .quad 1, 16, -1, -16
 
+EXIT_INDEX: .byte 0
+PORTAL_1_INDEX: .byte -1
+PORTAL_2_INDEX: .byte -1
+DIR_X: .quad 1
+DIR_Y: .quad 0
+ANGLE: .quad 0
+ROTATIONS: .quad 0
+
 format: .asciz "x: %d, y: %d\n\n"
 format_maze: .asciz "\n%s\n"
 format_maze_line: .asciz "%.16s\n"
-
-.section .bss
-.lcomm EXIT_INDEX, 1
-.lcomm PORTAL_1_INDEX, 1
-.lcomm PORTAL_2_INDEX, 1
-.lcomm DIR_X, 8
-.lcomm DIR_Y, 8
-.lcomm ANGLE, 8
-.lcomm ROTATIONS, 8
 
 .equ MAZE_BUFFER_SIZE, 304
 /* .lcomm MAZE_BUFFER, MAZE_BUFFER_SIZE
 .lcomm MAZE_HEIGHT, 5
 .lcomm MAZE_CHARS, 9
  */
-
 
 .section .text
 
@@ -69,17 +67,12 @@ main:
 	push %rbp
     mov %rsp, %rbp
 
-	movb $0, EXIT_INDEX
 	mov $0, %r11
 	mov $0, %r12
 	call find_all		# Update character stats
 	call print_data
 	movb $32, %r14b
 	mov $0, %r15
-	movq $1, DIR_X
-	movq $0, DIR_Y
-	movq $0, ANGLE
-	movq $0, ROTATIONS
 
 	call solve
 

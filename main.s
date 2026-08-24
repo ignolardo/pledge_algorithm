@@ -6,7 +6,7 @@ MAZE_BUFFER:
 	#.asciz "MMMMMMMMMMMMMMMMM M     M     MMM M MMM M MMM  MM M   M M M    MM MMM M M M  MMMM  X  M   M   #MMMMMMMMMMMMMMMMM"
 	#.asciz "MMMMMMMMMMMMMMMMM             #MM M   MMM  MM  MM M  XM M   M  MM M   MMM  MM MMM              MMMMMMMMMMMMMMMMM"
 	#.asciz "M@MMMMMMMMMMMMMMM M o   M     MMM M MMM M MMM oMMoM   M M Mo   MM MMM M M M  MMMM  X  M   M   #MMMMMMMM@MMMMMMMM" # Maze 1 Type 2
-	.asciz "MMMMMMMMMMMMMMMMM M o         MMMXM MMM M MMM  @M M   M M M    MM MMM M M MMMMMMM M o M MMM  o MM MMMMMoM    MMM@       M MMMM MM  MMMMMM      MM   o      M# oMMMMMMMMMMMMMMMMM" # Maze 4 Type 2
+	.asciz "\0\1\2\3\8\9\29\30MMMMMMMMM M o         MMMXM MMM M MMM  @M M   M M M    MM MMM M M MMMMMMM M o M MMM  o MM MMMMMoM    MMM@       M MMMM MM  MMMMMM      MM   o      M# oMMMMMMMMMMMMMMMMM" # Maze 4 Type 2
 
 # CHANGE !!!
 MAZE_HEIGHT: .long 11
